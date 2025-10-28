@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=(".env-template", ".env"),
         case_sensitive=False,
+        extra="ignore",
     )
     # postgres
     postgres_db: str
@@ -33,10 +34,16 @@ class Settings(BaseSettings):
     postgres_port: int = 5432
     pgdata: str
 
+    allow_db_create: int
+    db_create_retry_delay: int
+    db_create_retries: int
+
+    django_settings_module: str
+
     # backend
     debug: bool = False
     secret_key: str
-    allow_hosts: str
+    allowed_hosts: str
     celery_broker_url: str
 
     # redis
