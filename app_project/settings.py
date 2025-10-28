@@ -1,5 +1,4 @@
 from pathlib import Path
-import logging
 import logging.config
 import environ
 from app.config import pydantic_settings
@@ -51,6 +50,7 @@ CELERY_BEAT_SCHEDULE = {
 
 # Установленные приложения
 INSTALLED_APPS = [
+    'app',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -60,7 +60,6 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'drf_spectacular',
     'rest_framework',
-    'app',
 ]
 
 MIDDLEWARE = [
@@ -122,9 +121,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
-    {
-        "NAME": "app.api.core.CustomPasswordValidator",
     },
 ]
 
