@@ -15,7 +15,7 @@ class Model(models.Model):
 
 class User(AbstractUser):
     id: int | None
-    email = models.EmailField(unique=True, required=True)
+    email = models.EmailField(unique=True)
 
     ROLE_CHOICES = [
         ('administrator', 'Администратор'),
