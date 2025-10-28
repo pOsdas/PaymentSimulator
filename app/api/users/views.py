@@ -1,3 +1,4 @@
+import logging
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
@@ -7,6 +8,8 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 from app.models import User
 from .serializers import UserSerializer, UserCreateUpdateSerializer
+
+logger = logging.getLogger(__name__)
 
 
 class CreateUserView(APIView):
@@ -26,8 +29,11 @@ class CreateUserView(APIView):
         if serializer.is_valid():
             created_user = serializer.save()
 
-            return Response(UserSerializer(created_user).data, status=status.HTTP_201_CREATED)
+            user_data = UserSerializer(created_user).data
+            logger.info("Создан новый пользователь: %s ", user_data)
+            return Response(user_data, status=status.HTTP_201_CREATED)
 
+        logger.error("Ошибка при создании нового пользователя: %s ", serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -53,9 +59,12 @@ class UserInfoView(APIView):
 
         user_id = request.query_params.get('user_id')
         if not user_id:
+            logger.error("Ошибка при попытке получить информацию пользователя: не передан id пользователя")
             return Response({"error": "Не передан id пользователя"}, status=status.HTTP_400_BAD_REQUEST)
         user = User.objects.get(id=user_id)
         serializer = UserSerializer(user)
+
+        logger.info("Успешный запрос информации пользователя с id: %s", user_id)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -72,6 +81,8 @@ class UsersListView(APIView):
 
         users = User.objects.all()
         serializer = UserSerializer(users, many=True)
+
+        logger.info("Успешный запрос информации пользователей")
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -120,6 +131,7 @@ class ChangeUserView(APIView):
         try:
             user_to_change = User.objects.get(id=user_id)
         except User.DoesNotExist:
+            logger.error("Ошибка при редактировании пользователя с id=%s: пользователь не найден", user.id)
             return Response({"error": "Пользователь не найден"}, status=status.HTTP_404_NOT_FOUND)
 
         # Изменение параметров
@@ -137,8 +149,10 @@ class ChangeUserView(APIView):
                 updated_user.set_password(password)
                 updated_user.save()
 
+            logger.info("Успешное редактирование пользователя с id=%s", user.id)
             return Response(UserSerializer(updated_user).data, status=status.HTTP_200_OK)
 
+        logger.error("Ошибка при редактировании пользователя с id=%s: %s", user.id, serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -180,20 +194,15 @@ class DeleteUserView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Взять и исключить администратора
         try:
             user_to_delete = User.objects.get(id=user_id)
         except User.DoesNotExist:
+            logger.error("Ошибка при удалении пользователя с id=%s: пользователь не существует", user_id)
             return Response({"error": "Пользователь не существует"}, status=status.HTTP_404_NOT_FOUND)
-
-        if user_to_delete.role == "administrator":
-            return Response(
-                {"error": "Нельзя удалить администратора"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
 
         # Удаление
         user_to_delete.delete()
+        logger.info("Пользователь с id=%s успешно удален", user_id)
         return Response(
             {"message": f"Пользователь {user_id} успешно удален"},
             status=status.HTTP_200_OK
