@@ -31,6 +31,8 @@ DATABASES = {
 # DATABASES["default"]["ENGINE"] = "django.db.backends.postgresql_async"
 DATABASES["default"]["ENGINE"] = "django.db.backends.postgresql"
 
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
 # Настройка Redis
 REDIS_HOST = env.str("REDIS_HOST", "localhost") if DOCKER else '127.0.0.1'
 REDIS_PORT = env.str("REDIS_PORT", "6379")  # if DOCKER else '127.0.0.1:6379'
