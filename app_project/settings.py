@@ -39,10 +39,6 @@ REDIS_PORT = env.str("REDIS_PORT", "6379")  # if DOCKER else '127.0.0.1:6379'
 REDIS_DB = env.str("REDIS_DB", "1")
 REDIS_DECODE_RESPONSES = True
 
-# TTL для redis
-CATALOG_CACHE_TTL = 60 * 60  # 1 час
-SMART_PROCESSES_CACHE_TTL = 60 * 20  # 20 минут
-ALAN_ACCESS_TTL = 60 * 60 * 24  # День
 
 # Настройка Celery
 CELERY_BROKER_URL = env.str("CELERY_BROKER_URL")  # f"redis://{_REDIS_HOST}:{_REDIS_PORT}/{REDIS_DB}"
